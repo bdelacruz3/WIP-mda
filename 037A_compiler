@@ -1,0 +1,46 @@
+import os
+import csv
+
+# directory to search
+directory = 'YOUR_DIRECTORY_PATH'
+
+# List to store unique rows based on the first column
+unique_rows = []
+
+# Set to track seen first column values
+seen = set()
+
+# Loop through all files in the directory
+for filename in os.listdir(directory):
+    # Check if "0728" is in the filename
+    # Since files from SFTP contains the date the report was generated as the last 4 characters
+    # The file names will start with the report type (ie: 037A), followed by account number, then date of the report
+    if "0728" in filename:
+        # Construct the full file path
+        file_path = os.path.join(directory, filename)
+        
+        # Open the file and read its contents
+        with open(file_path, 'r') as file:
+            # Read each line of the file
+            for line in file:
+                # Split the line into columns (assuming whitespace-separated columns)
+                columns = line.strip().split()
+                # Check if the first column value has already been seen
+                if columns[0] not in seen:
+                    # If not, add it to the seen set and append the row to unique_rows
+                    seen.add(columns[0])
+                    unique_rows.append(columns)
+
+# Sort the unique rows by the first column (index 0)
+sorted_unique_rows = sorted(unique_rows, key=lambda x: x[0])
+
+# Specify the output CSV file path
+output_csv = 'sorted_unique_output.csv'
+
+# Write the sorted unique rows to a CSV file
+with open(output_csv, mode='w', newline='') as file:
+    writer = csv.writer(file)
+    # Write each row to the CSV file
+    writer.writerows(sorted_unique_rows)
+
+print(f"Data saved to {output_csv}")
